@@ -79,6 +79,9 @@ if __name__ == '__main__':
         depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
         
         depth = depth.cpu().numpy().astype(np.uint8)
+        # Save the depth map as a .npy file
+        npy_filename = os.path.join(args.outdir, filename[:filename.rfind('.')] + '.npy')
+        np.save(npy_filename, depth)
         
         if args.grayscale:
             depth = np.repeat(depth[..., np.newaxis], 3, axis=-1)
@@ -88,7 +91,7 @@ if __name__ == '__main__':
         filename = os.path.basename(filename)
         
         if args.pred_only:
-            cv2.imwrite(os.path.join(args.outdir, filename[:filename.rfind('.')] + '_depth.png'), depth)
+            cv2.imwrite(os.path.join(args.outdir, filename[:filename.rfind('.')] + '.png'), depth)
         else:
             split_region = np.ones((raw_image.shape[0], margin_width, 3), dtype=np.uint8) * 255
             combined_results = cv2.hconcat([raw_image, split_region, depth])
