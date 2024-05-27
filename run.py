@@ -50,15 +50,16 @@ if __name__ == '__main__':
         PrepareForNet(),
     ])
     
-    if os.path.isfile(args.img_path):
+    if os.path.isfile(args.img_path):#path is a file
         if args.img_path.endswith('txt'):
             with open(args.img_path, 'r') as f:
                 filenames = f.read().splitlines()
         else:
             filenames = [args.img_path]
-    else:
+    else: #path is a dir
         filenames = os.listdir(args.img_path)
         filenames = [os.path.join(args.img_path, filename) for filename in filenames if not filename.startswith('.')]
+        #filters out any items that start with '.' (hidden files or directories) and constructs full paths for the remaining items by joining them with the directory path
         filenames.sort()
     
     os.makedirs(args.outdir, exist_ok=True)
@@ -79,16 +80,17 @@ if __name__ == '__main__':
         depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
         
         depth = depth.cpu().numpy().astype(np.uint8)
+        
+        # if args.grayscale:
+        #     depth = np.repeat(depth[..., np.newaxis], 3, axis=-1)
+        # else:
+        #     depth = cv2.applyColorMap(depth, cv2.COLORMAP_INFERNO)
+        
+        filename = os.path.basename(filename)
+
         # Save the depth map as a .npy file
         npy_filename = os.path.join(args.outdir, filename[:filename.rfind('.')] + '.npy')
         np.save(npy_filename, depth)
-        
-        if args.grayscale:
-            depth = np.repeat(depth[..., np.newaxis], 3, axis=-1)
-        else:
-            depth = cv2.applyColorMap(depth, cv2.COLORMAP_INFERNO)
-        
-        filename = os.path.basename(filename)
         
         if args.pred_only:
             cv2.imwrite(os.path.join(args.outdir, filename[:filename.rfind('.')] + '.png'), depth)
