@@ -80,11 +80,19 @@ if __name__ == '__main__':
         depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
         
         depth = depth.cpu().numpy().astype(np.uint8)
+
+        ########Using Otsu’s Thresholding
+        _, binary_mask = cv2.threshold(depth, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+        # Save or visualize the mask
+        filename = os.path.basename(filename)
+        cv2.imwrite(os.path.join(args.outdir, filename[:filename.rfind('.')] + '_mask.png'), binary_mask)# Save the mask
         
         # if args.grayscale:
         #     depth = np.repeat(depth[..., np.newaxis], 3, axis=-1)
         # else:
-        #     depth = cv2.applyColorMap(depth, cv2.COLORMAP_INFERNO)
+            # depth = cv2.applyColorMap(depth, cv2.COLORMAP_INFERNO)
+        # depth = cv2.applyColorMap(depth, cv2.COLORMAP_INFERNO)
         
         filename = os.path.basename(filename)
 
